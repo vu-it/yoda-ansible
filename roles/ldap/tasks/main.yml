@@ -1,0 +1,15 @@
+---
+# copyright Utrecht University
+
+- name: Ensure OpenLDAP is installed
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items:
+  - openldap-servers
+  - openldap-clients
+  - libselinux-python
+  - openssl
+
+- name: Delete the configuration directory
+  file: path=/etc/openldap/slapd.d state=absent

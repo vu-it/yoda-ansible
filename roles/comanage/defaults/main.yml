@@ -1,0 +1,15 @@
+---
+# copyright Utrecht University
+
+comanage_version: develop
+comanage_fqdn: comanage.test
+comanage_deployment_user: comanagedeployment
+comanage_path: /var/www/registry
+
+comanage_database_name: registry
+comanage_database_user: comanage
+comanage_database_password: SJng9Tm3BkRRRvyF
+
+comanage_admin_given_name: Test
+comanage_admin_family_name: User
+comanage_admin_username: test@comanage.test

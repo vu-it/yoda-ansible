@@ -8,6 +8,8 @@ allinone-database
 allinone-icat
 allinone-resource
 allinone-public
+allinone-ldap
+allinone-comanage
 
 # Define portal host here:
 [allinone-portal]
@@ -24,6 +26,14 @@ combined
 # Define public host here:
 [allinone-public]
 combined
+
+# Define ldap host here:
+[allinone-ldap]
+ldap
+
+# Define comanage host here:
+[allinone-comanage]
+comanage
 
 # Define resource host here:
 [allinone-resource]
@@ -51,6 +61,14 @@ allinone-resource
 # Define all public hosts here:
 [publics:children]
 allinone-public
+
+# Define all ldap hosts here:
+[ldaps:children]
+allinone-ldap
+
+# Define all comanage hosts here:
+[comanages:children]
+allinone-comanage
 
 # Provision instances with test data:
 [test:children]

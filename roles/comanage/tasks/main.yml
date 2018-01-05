@@ -1,0 +1,174 @@
+---
+# copyright Utrecht University
+
+- name: Ensure COmanage deployment user exists
+  user:
+    name: "{{ comanage_deployment_user }}"
+
+
+- name: Ensure COmanage deployment user has access to /var/www
+  file:
+    path: /var/www/
+    state: directory
+    owner: "{{ comanage_deployment_user }}"
+    group: "{{ comanage_deployment_user }}"
+    mode: 0711
+
+
+- name: Ensure PHP dependencies are installed
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items:
+  - php-mbstring
+  - php-xsl
+  - php-pdo
+  - php-pgsql
+  - php-openssl
+  - php-ldap
+  - php-gd
+  notify: Restart Apache webserver
+
+
+- name: Download COmanage source
+  become_user: "{{ comanage_deployment_user }}"
+  become: yes
+  get_url:
+    url: "https://github.com/Internet2/comanage-registry/archive/{{ comanage_version }}.tar.gz"
+    dest: "/tmp/{{ comanage_version }}.tar.gz"
+  register: comanage_downloaded
+
+
+- name: Unarchive COmanage source
+  become_user: "{{ comanage_deployment_user }}"
+  become: yes
+  unarchive:
+    src: "/tmp/{{ comanage_version }}.tar.gz"
+    dest: "/var/www/"
+    copy: no
+  when: comanage_downloaded | changed
+
+
+- name: Link public directory of COmanage portal
+  file:
+    src: "/var/www/comanage-registry-{{ comanage_version }}"
+    dest: "{{ comanage_path }}"
+    state: link
+
+
+- name: Adding COmanage non-core plugins
+  become_user: "{{ comanage_deployment_user }}"
+  become: yes
+  file:
+    src: "/var/www/registry/app/AvailablePlugin/{{ item }}"
+    dest: "/var/www/registry/local/Plugin/{{ item }}"
+    state: link
+  with_items:
+    - LdapServiceTokenProvisioner
+    - CoServiceToken
+
+
+- name: Check if COmanage tmp directory exists
+  stat:
+    path: /var/cache/registry
+  register: comanage_tmp
+
+
+- name: Create COmanage tmp directory
+  command: cp -a {{ comanage_path }}/app/tmp.dist /var/cache/registry
+  when: not comanage_tmp.stat.exists
+
+
+- name: Verify COmanage tmp directory ownership and permissions
+  file:
+    path: /var/cache/registry
+    owner: "{{ comanage_deployment_user }}"
+    mode: 0777
+    state: directory
+    recurse: yes
+
+
+- name: Check for COmanage local tmp directory
+  stat:
+    path: "{{ comanage_path }}/local/tmp"
+  register: comanage_local_tmp
+
+
+- name: Link to COmanage tmp directory
+  file:
+    src: /var/cache/registry
+    dest: "{{ comanage_path }}/local/tmp"
+    state: link
+  when: not comanage_local_tmp.stat.exists
+
+
+- name: Create COmanage database
+  become_user: postgres
+  become: yes
+  postgresql_db:
+    name: "{{ comanage_database_name }}"
+    encoding: UTF-8
+    lc_collate: en_US.UTF-8
+    lc_ctype: en_US.UTF-8
+    template: template0
+
+
+- name: Create COmanage database user
+  become_user: postgres
+  become: yes
+  postgresql_user:
+    db: "{{ comanage_database_name }}"
+    name: "{{ comanage_database_user }}"
+    password: "{{ comanage_database_password }}"
+    priv: ALL
+
+
+- name: Check for COmanage database configuration
+  stat:
+    path: "{{ comanage_path }}/local/Config/database.php"
+  register: comanage_db_config
+
+
+- name: Configure COmanage database connection info
+  template:
+    src: "database.php.j2"
+    dest: "{{ comanage_path }}/local/Config/database.php"
+
+
+- name: Install COmanage database scheme
+  command: ./Console/cake database
+  args:
+    chdir: "{{ comanage_path }}/app"
+  when: not comanage_db_config.stat.exists
+
+
+- name: Setup Cake for login
+  command: >
+    ./Console/cake setup
+    --admin-given-name "{{ comanage_admin_given_name }}"
+    --admin-family-name "{{ comanage_admin_family_name }} "
+    --admin-username "{{ comanage_admin_username }}"
+    --enable-pooling=No
+  args:
+    chdir: "{{ comanage_path }}/app"
+
+
+- name: Create a crontab entry for CakePHP
+  cron:
+    name: "Cake Job Cleaning"
+    job: "cd {{ comanage_database_name }} && Console/cake job -q"
+    state: present
+    minute: "0"
+    hour: "1"
+    user: "{{ comanage_deployment_user }}"
+
+
+- name: Copy COmanage virtual host config for Apache
+  template:
+    src: "comanage-vhost.conf.j2"
+    dest: "/etc/httpd/conf.d/comanage-vhost.conf"
+  notify: Restart Apache webserver
+
+
+- name: Allow Apache to write to tmp directory
+  command: chcon -Rv --type=httpd_user_content_rw_t /var/www/registry/app/tmp/

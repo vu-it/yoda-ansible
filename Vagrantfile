@@ -37,11 +37,12 @@ if instance == "full" then
     "icat"     => [NETWORK+"12", CPU, RAM, GUI, BOX],
     "resource" => [NETWORK+"13", CPU, RAM, GUI, BOX],
     "public"   => [NETWORK+"14", CPU, RAM, GUI, BOX],
-
   }
 else
   HOSTS = {
     "combined" => [NETWORK+"10", 2, 1024, GUI, BOX],
+    "ldap"     => [NETWORK+"11", CPU, RAM, GUI, BOX],
+    "comanage" => [NETWORK+"12", CPU, RAM, GUI, BOX],    
   }
 end
 
