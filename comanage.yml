@@ -16,6 +16,7 @@
   become: yes
   roles:
     - ldap
+    - federated-authentication
   tags:
     - ldap
 

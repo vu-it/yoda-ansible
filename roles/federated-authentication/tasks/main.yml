@@ -1,0 +1,27 @@
+---
+# copyright Utrecht University
+
+- name: Install pip
+  package:
+    name: python-pip
+    state: present
+
+
+- name: Install federated authentication dependencies
+  pip:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - tornado
+    - tornado-webservices
+    - python-ldap
+    - pyotp
+
+
+- name: Allow public to port 80 in firewall
+  firewalld:
+    port: 80/tcp
+    permanent: true
+    state: enabled
+    immediate: yes
+  notify: Restart firewall
