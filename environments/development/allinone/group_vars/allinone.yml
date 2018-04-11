@@ -125,7 +125,7 @@ rulesets:
   - name: irods-ruleset-uu
     repo: https://github.com/UtrechtUniversity/irods-ruleset-uu.git
     ruleset_name: rules-uu
-    version: "{{ yoda_version }}"
+    version: "feature/comanage"
     install_scripts: yes
   - name: core
     ruleset_name: core
@@ -150,6 +150,11 @@ datacite_username: PLACEHOLDER          # DataCite username
 datacite_password: PLACEHOLDER          # DataCite password
 datacite_prefix: 10.5072                # DataCite DOI prefix
 datacite_server: mds.test.datacite.org  # DataCite server URI
+
+#########################
+# COmanage Configuration
+#########################
+comanage_server: PLACEHOLDER # COmanage server URI
 
 ###########################
 # PAM Radius configuration
