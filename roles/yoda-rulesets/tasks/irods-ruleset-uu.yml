@@ -46,3 +46,16 @@
     day: 15
     job: '/bin/irule -F /etc/irods/irods-ruleset-uu/tools/monthly-storage-statistics.r >> $HOME/log/job_monthly-storage-statistics.log 2>&1'
   when: monthly_storage_statistics.stat.exists == True
+
+
+- name: Set configuration AVUs to system collection
+  irods_setavu:
+    name: "/{{ irods_zone }}/yoda"
+    irods_type: Collection
+    attribute: "{{ avu.attribute }}"
+    value: "{{ avu.value }}"
+  with_items:
+    - attribute: org_comanager_server
+      value: "{{ comanage_server }}"
+  loop_control:
+    loop_var: avu
