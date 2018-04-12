@@ -46,7 +46,7 @@
   become: yes
   shell: 'ils /{{ irods_zone }}/home'
   register: ils
-  until: ils | succeeded
+  until: ils is succeeded
   retries: 5
   delay: 10
 
@@ -58,8 +58,6 @@
 
 
 - include_tasks: "{{ ruleset.name }}.yml"
-  become_user: "{{ irods_service_account }}"
-  become: yes
   with_items: "{{ rulesets }}"
   loop_control:
     loop_var: ruleset
