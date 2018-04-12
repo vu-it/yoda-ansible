@@ -67,7 +67,7 @@
     attribute: "{{ avu.attribute }}"
     value: "{{ avu.value }}"
   with_items:
-    - attribute: org_comanager_server
-      value: "{{ comanage_server }}"
+    - attribute: org_comanage_rest_api
+      value: "{{ comanage_rest_api }}"
   loop_control:
     loop_var: avu

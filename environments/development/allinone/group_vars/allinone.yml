@@ -154,7 +154,7 @@ datacite_server: mds.test.datacite.org  # DataCite server URI
 #########################
 # COmanage Configuration
 #########################
-comanage_server: PLACEHOLDER # COmanage server URI
+comanage_rest_api: PLACEHOLDER # COmanage REST API
 
 ###########################
 # PAM Radius configuration
