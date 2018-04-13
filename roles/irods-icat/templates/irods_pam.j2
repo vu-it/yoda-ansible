@@ -2,3 +2,4 @@
 #%PAM-1.0
 auth        sufficient    pam_unix.so
 auth        required      pam_radius_auth.so
+auth        sufficient    pam_otp.so ldap=ldap://localhost basedn=dc=yoda,dc=uu binddn=cn=admin,dc=yoda,dc=uu passwd=admin uid=uid ttl=3600 debug
