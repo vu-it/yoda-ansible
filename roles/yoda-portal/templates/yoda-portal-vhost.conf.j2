@@ -44,4 +44,10 @@
     #   you've both a RSA and a DSA private key you can configure
     #   both in parallel (to also allow the use of DSA ciphers, etc.)
     SSLCertificateKeyFile   {{ openssl_private_dir }}/{{ openssl_key_signed }}
+
+    ProxyPass /ldap         http://127.0.0.1:8181/phpldapadmin/
+    ProxyPassReverse /ldap  http://127.0.0.1:8181/phpldapadmin/
+
+    ProxyPass /api          http://127.0.0.1:8282/api
+    ProxyPassReverse /api   http://127.0.0.1:8282/api
 </VirtualHost>
