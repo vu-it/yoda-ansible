@@ -61,6 +61,8 @@
 
 
 - name: Set configuration AVUs to system collection
+  become_user: "{{ irods_service_account }}"
+  become: yes
   irods_setavu:
     name: "/{{ irods_zone }}/yoda"
     irods_type: Collection
